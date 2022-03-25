@@ -10,5 +10,5 @@
     <lightningMessageFields>
          <fieldName>constant</fieldName>
         <description>This is the number for the manipulation</description>
-     </lightningMessageFields>
+    </lightningMessageFields>
 </LightningMessageChannel>

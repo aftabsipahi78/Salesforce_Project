@@ -1,0 +1,25 @@
+.abc{
+    background-color: var(--lwc-colorBackground);
+    color: var(-lwc-colorTextDefault);
+    
+       
+   }
+
+   .slds-col{
+       background-color: var(--lwc-colorBackground);
+       color: var(--lwc-colorTextDefault);
+      
+   }
+   .outer{
+       background-color: var(--lwc-colorBackground);
+    color: var(--lwc-colorTextDefault);
+    
+   }
+   .searchbar{
+    background-color: var(--lwc-colorBackground);
+    color: var(--lwc-colorTextDefault);
+   }
+   .slds-p-around_medium{
+    background-color: var(--lwc-colorBackground);
+    color: var(--lwc-colorTextDefault);
+   }

@@ -1,0 +1,52 @@
+<template>
+    <div>
+        <lightning-button variant="brand" label="Back" slot="actions" title="Primary action" onclick={navigateToWebPage}  class="slds-m-left_x-small" ></lightning-button>
+    </div>
+    
+    <br>
+    <div class="slds-p-around_medium searchbar">
+        
+        <div class="slds-m-bottom_small searchbar" >
+           
+            <lightning-input type="text"
+               value={searchValue}
+               label="Contact Name"
+               onchange={searchKeyword}
+               class="searchbar"
+               placeholder="search here..."
+               >
+            </lightning-input>
+         </div>
+        </div>
+    <div class="slds-p-around_medium">
+       <lightning-layout if:true={contacts.data} multiple-rows="true">
+           <template for:each={contacts.data} for:item="cont" >
+               <div key={cont.Id} class="slds-col slds-size_1-of-1 slds-large-size_1-of-4 slds-box slds-p-around_medium slds-text-align_center abc">
+                   <lightning-layout-item  size="4" class="slds-col slds-size_1-of-1 slds-large-size_3-of-4" >
+                       <lightning-card data-value={cont.Id} class="abc">
+                          
+                            <div> 
+                              
+                        <h4><b>Contact Name:</b>{cont.Name}</h4>
+                   
+                         <h4><b>Contact Phone:</b> {cont.Phone}</h4>
+                       
+                         <h4><b>Contact Email: </b>{cont.Email}</h4>
+                        
+                        
+                           </div>
+                       </lightning-card>
+                   </lightning-layout-item>
+               </div>
+           </template>
+       </lightning-layout>
+   </div>
+       
+       <template if:true={accList}>
+           <lightning-datatable data={accList} columns={columns} key-field="Id">
+           </lightning-datatable>
+       </template>
+       <template if:true={error}>
+           {error}
+       </template>
+   </template>

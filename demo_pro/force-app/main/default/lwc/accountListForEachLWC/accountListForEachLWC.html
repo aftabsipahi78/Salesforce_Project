@@ -1,0 +1,21 @@
+<template>
+        <div class="slds-p-around_medium">
+            <lightning-layout if:true={accounts.data} multiple-rows="true">
+                <template for:each={accounts.data} for:item="acc" >
+                    <div key={acc.Id} class="slds-col slds-size_1-of-1 slds-large-size_1-of-4 slds-box slds-p-around_medium slds-text-align_center">
+                        <lightning-layout-item  size="4" class="slds-col slds-size_1-of-1 slds-large-size_3-of-4" >
+                            <lightning-card onclick={getContact} data-value={acc.Id}>
+                                {acc.Name}<br>{acc.Phone}<br>{acc.Rating}<br>{acc.type}
+                            </lightning-card>
+
+                        </lightning-layout-item>
+                    </div>
+                </template>
+            </lightning-layout>
+            
+            <template if:true={accounts.error}>
+                {accounts.error}
+            </template>
+        </div>
+    
+</template>

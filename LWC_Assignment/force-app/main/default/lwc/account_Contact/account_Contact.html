@@ -1,0 +1,62 @@
+<template >
+    <article class="slds-card">
+        <div class="slds-grid slds-einstein-header slds-card__header">
+          <header class="slds-media slds-media_center slds-has-flexi-truncate">
+            <div class="slds-grid slds-grid_vertical-align-center slds-size_3-of-4 slds-medium-size_2-of-3">
+              <div class="slds-media__figure">
+                <span class="slds-icon_container slds-icon-utility-salesforce1">
+                  <svg class="slds-icon slds-icon_small slds-icon-text-default" aria-hidden="true">
+                    <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#salesforce1"></use>
+                  </svg>
+                </span>
+              </div>
+              <div class="slds-media__body">
+                <h2 class="slds-truncate" title="Einstein (10+)">
+                  <a href="#" class="slds-card__header-link" title="LWC">
+                    <span class="slds-text-heading_small">Lightning Web Component Assignment</span>
+                  </a>
+                </h2>
+                <div class="slds-p-around_medium">
+                    <div class="slds-m-bottom_small">
+                        <b><lightning-input type="text"
+                           value={searchValue}
+                           label="Account Name"
+                           onchange={searchKeyword}
+                           class="searchbar"
+                           placeholder="search here..."
+                           >
+                        </lightning-input></b>
+                     </div>
+                     </div>
+              </div>
+            </div>
+            <div class="slds-einstein-header__figure slds-size_1-of-4 slds-medium-size_1-of-3"></div>
+          </header>
+          </div>
+      </article>
+    <lightning-layout if:true={accounts.data} multiple-rows="true">
+        <template for:each={accounts.data} for:item="acc" >
+            <div key={acc.Id} class="slds-col slds-size_1-of-1 slds-large-size_1-of-4 slds-box slds-p-around_medium slds-text-align_center"> 
+                <lightning-layout-item  size="4" class="slds-col slds-size_1-of-1 slds-large-size_3-of-4" >
+                    <lightning-card>
+                        <lightning-button slot="actions" label="Edit" onclick={openAllContactRecords} value={acc.Id}></lightning-button>
+                        <div onclick={navigateNext} data-value={acc.Id}>
+                            <h1><b>Account Name:</b></h1>{acc.Name}  
+                            <br>
+                            <h1><b>Account Phone:</b></h1>{acc.Phone}
+                            <br>
+                            <h1><b>Account ID:</b></h1>{acc.Id}
+                            <br>
+                            <h1><b>Account Type:</b></h1>{acc.Type}
+                        </div>
+                    </lightning-card>
+                </lightning-layout-item>
+            </div>
+        </template>
+    </lightning-layout>
+
+    
+    <template if:true={error}>
+        {error}
+    </template>
+</template>
