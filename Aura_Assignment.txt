@@ -1,0 +1,273 @@
+ShowBubbleCapture.app
+-----------------------------------
+
+<aura:application extends="force:slds" implements="flexipage:availableForrecordHome">
+    <c:bubblecaptureComp/>
+</aura:application>
+
+
+**************************************************************************************
+
+bubblecaptureComp.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <aura:attribute name="value" type="String"/> 
+    <aura:attribute name="value1" type="String"/> 
+    <aura:attribute name="bubble" type="String"/>
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <b>Bubble</b>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <b>Capture</b> 
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <ui:inputText aura:id="Input1" label="Enter String" required="true"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <ui:inputText aura:id="Input2" label="Enter String" required="true"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <ui:button aura:id="button1" label="Start" press="{!c.startBubble}" />    
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <ui:button aura:id="button2" label="Start" press="{!c.startCapture}"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <aura:if isTrue="{!v.value}">
+                <c:sourceComp1 value="{!v.value}"/>
+            </aura:if>
+        </lightning:layoutItem>
+         <lightning:layoutItem size="6" class="slds-align_absolute-center" padding="around-large">
+            <aura:if isTrue="{!v.value1}">
+                <c:ownerComp value="{!v.value1}"/>
+            </aura:if>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>
+
+**************************************************************************************
+
+bubblecaptureCompController.js
+-----------------------------------
+
+({
+    startBubble : function(cmp, event, helper) {
+        var input1 = cmp.find("Input1").get("v.value");
+        cmp.set("v.value",input1);
+        cmp.set("v.bubble",true);
+        console.log(input1);
+        console.log(cmp.get("v.value"));
+    },
+    startCapture : function(cmp, event, helper) {
+        var input2 = cmp.find("Input2").get("v.value");
+        cmp.set("v.value1",input2);
+        cmp.set("v.capture",true);
+        console.log(input2);
+        console.log(cmp.get("v.value1"));
+    },
+    fireComponentEvent : function(cmp, event) {
+        // Get the component event by using the
+        // name value from aura:registerEvent
+        var bubbleCaptureEvent = cmp.getEvent("bubbleCaptureEvent");
+        bubbleCaptureEvent.setParams({
+            "message" : "A component event fired me. " +
+            "It all happened so fast. Now, I'm here!" });
+        bubbleCaptureEvent.fire();
+    }
+})
+
+
+**************************************************************************************
+
+ownerComp.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="value" type="String"/>
+    <!--<aura:attribute name="value1" type="String"/>-->	
+    <lightning:layout>
+        <b>Owner :</b><h1>{!v.value}</h1><h1>{!v.value1}</h1>
+    </lightning:layout>
+    
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleCapture}" phase="capture"/>
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleBubbling}" phase="bubble"/>
+    
+    <c:containerComp value="{!v.value}"/>   
+</aura:component>
+
+**************************************************************************************
+
+ownerCompController.js
+-----------------------------------
+
+({
+	handleBubbling : function(component, event, helper) {
+		console.log('handler bubble in ---Owner');
+	},
+    handleCapture : function(component, event, helper) {
+		console.log('handler capture in ---Owner');
+	},
+})
+
+**************************************************************************************
+
+ownerComp1.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="value" type="String"/>
+    
+            <b>Owner :</b><h1>{!v.value}</h1><h1>{!v.value1}</h1>
+        
+    <aura:registerEvent name="bubbleCaptureEvent" type="c:bubbleCaptureEvent" />
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleBubbling}"/>
+    <!--<c:ContainerComp value="{!v.value}"/>-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+</aura:component>
+
+**************************************************************************************
+
+ownerComp1Controller.js
+-----------------------------------
+
+({
+    doInit : function(component, event, helper) {
+        console.log('event firing');
+        var cmpEvt = component.getEvent("bubbleCaptureEvent");
+        
+        cmpEvt.fire();
+        
+    },
+    handleBubbling : function(component, event, helper) {
+        console.log('handler bubble in ---Owner');
+    },
+})
+
+**************************************************************************************
+
+containerComp.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+	<aura:attribute name="value" type="String"/>
+    <aura:attribute name="value1" type="String"/>
+    <lightning:layout>
+            <b>Container :</b><h1>{!v.value}</h1><h1>{!v.value1}</h1>
+    </lightning:layout>    
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleCapture}" phase="capture"/>
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleBubbling}" phase="bubble"/>
+    <c:sourceComp value="{!v.value}"/>  
+</aura:component>
+
+**************************************************************************************
+
+containerCompController.js
+-----------------------------------
+
+({
+	handleBubbling : function(component, event, helper) {
+		console.log('handler bubble in ---container');
+	},
+    handleCapture : function(component, event, helper) {
+		console.log('handler capture in ---container');
+	},
+})
+
+**************************************************************************************
+
+containerComp1.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="value" type="String"/>
+    <aura:attribute name="value1" type="String"/>
+    
+    <b>Container :</b><h1>{!v.value}</h1><h1>{!v.value1}</h1>
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleBubbling}"/>
+    <c:OwnerComp1 value="{!v.value}" />
+</aura:component>
+
+**************************************************************************************
+
+containerComp1Controller.js
+-----------------------------------
+
+({
+    handleBubbling : function(component, event, helper) {
+        console.log('handler bubble in ---container');
+    },
+})
+
+**************************************************************************************
+
+sourceComp.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+	<aura:attribute name="value" type="String"/>
+    <aura:attribute name="value1" type="String"/>
+    <b>Source :</b><h1>{!v.value}</h1><h1>{!v.value1}</h1> 
+    <aura:registerEvent name="bubbleCaptureEvent" type="c:bubbleCaptureEvent" />
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleCapture}" phase="capture"/>
+    <aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleBubbling}" phase="bubble"/>
+    <aura:handler name="init" value="{! this}" action="{!c.doInit}"/>
+    
+</aura:component>
+
+**************************************************************************************
+
+sourceCompController.js
+-----------------------------------
+
+({
+	doInit : function(component, event, helper) {
+		console.log('event firing');
+       var cmpEvt = component.getEvent("bubbleCaptureEvent");
+        cmpEvt.fire();
+        
+	},
+    handleBubbling : function(component, event, helper) {
+		console.log('handler bubble in ---source');
+	},
+    handleCapture : function(component, event, helper) {
+		console.log('handler capture in ---source');
+	},
+})
+
+**************************************************************************************
+
+sourceComp1.cmp
+-----------------------------------
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+<aura:attribute name="value" type="String"/>
+<aura:attribute name="value1" type="String"/>
+<b>Source :</b><h1>{!v.value}</h1><h1>{!v.value1}</h1>
+
+<!--<aura:registerEvent name="bubbleCaptureEvent" type="c:bubbleCaptureEvent" />-->
+<aura:handler name="bubbleCaptureEvent" event="c:bubbleCaptureEvent" action="{!c.handleBubbling}"/>
+<!--<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>-->
+<c:ContainerComp1 value="{!v.value}"/>
+
+</aura:component>
+
+**************************************************************************************
+
+sourceComp1Controller.js
+-----------------------------------
+
+({
+handleBubbling : function(component, event, helper) {
+console.log('handler bubble in ---source');
+},
+})
+
+**************************************************************************************
+
+bubbleCaptureEvent.evt
+----------------------------------
+
+<aura:event type="APPLICATION" description="Event template" />
+**************************************************************************************
