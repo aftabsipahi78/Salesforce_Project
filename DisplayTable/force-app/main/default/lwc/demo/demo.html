@@ -1,0 +1,43 @@
+<template>
+    <table aria-describedby="conatact-list" class="slds-table slds-table_cell-buffer slds-table_bordered ">
+        <!--Header of the table-->
+        <thead>
+            <tr class="slds-line-height_reset">
+                
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Prdt">Prdt</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Quantity">Quantity</div>
+                </th>
+                
+               
+            </tr>
+        </thead>
+
+        <!--Body of the table-->
+        <tbody>
+            <template for:each={PrdtList} for:item="item" for:index="indexVar">
+                <tr key={item.recId} class="slds-hint-parent">
+                   
+                   
+                     <td class="slds-truncate">
+                        <div>
+                            {item.ProdName}
+                        </div>
+                    </td> 
+                    
+                    <td class="slds-truncate">
+                        <div>
+                            <input type="number"  data-index={indexVar}  data-target-id={item.Qty}  onchange={handleQtyChange}></input>
+               
+                        </div>
+                    </td> 
+                    
+                  
+                </tr>
+            </template>
+            
+        </tbody>
+    </table>
+</template>

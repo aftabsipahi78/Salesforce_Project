@@ -3,7 +3,7 @@ public without sharing class AccountHelper{
     public static List<Account> getAccountList(string searchKey) {
         string searchKeyword = '%' + searchKey + '%';
         List<Account> acc=new List<Account>();
-        acc= [SELECT Id, Name, Type, OwnerId,Phone FROM Account WHERE Name LIKE : searchKeyword limit 16];
+        acc= [SELECT Id, Name, Type, OwnerId,Phone FROM Account WHERE Name LIKE = searchKeyword limit 16];
         return acc;
     }
 

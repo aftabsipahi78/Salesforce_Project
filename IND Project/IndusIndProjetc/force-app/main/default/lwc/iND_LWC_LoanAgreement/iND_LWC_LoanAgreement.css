@@ -1,0 +1,9 @@
+.slds-accordion__summary-content, .accordion_Header{
+    background-color:#84181f;
+} 
+:host{
+    --sds-c-accordion-summary-color-background: #84181F;
+    --sds-c-accordion-heading-text-color: white;
+    --sds-c-accordion-heading-text-font-weight: bold;
+    --sds-c-accordion-heading-text-color-hover: white;
+}

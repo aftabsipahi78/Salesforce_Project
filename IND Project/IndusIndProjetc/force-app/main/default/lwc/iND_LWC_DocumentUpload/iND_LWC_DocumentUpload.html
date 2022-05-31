@@ -1,0 +1,179 @@
+<template>
+    <template if:true={uploadViewDocPopup}>
+        <section id="modal3" role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <template if:true={isLoading}>
+                <lightning-spinner data-id="spinner" variant="brand" class="slds-hide"></lightning-spinner>
+            </template>
+<div class="slds-form slds-modal__container">
+    <header class="slds-modal__header">
+        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={uploadImageClose}>
+                        <lightning-icon icon-name="utility:close" size="medium" variant="bare">
+                        </lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+        <h2 id="modal-heading-02" class="slds-modal__title slds-hyphenate">
+            {title}
+        </h2>
+    </header>
+    <lightning-card>
+        <div class="slds-card__body_inner">
+            <lightning-tabset active-tab-value="1">
+                <lightning-tab label=Upload value="1">
+                    <lightning-tabset active-tab-value="Borrower">
+                        <lightning-tab if:true={borrowerVisible} label=Borrower value="Borrower" onactive={handleActive}>
+                            <div class="slds-container_center">
+                                <lightning-layout multiple-rows="true" horizontal-align="center">
+                                    <lightning-layout-item size="3" padding="around-small">
+                                            Record Type
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="3" padding="around-small">
+                                        <template if:true={recordTypeIds}>
+                                            <lightning-combobox class="slds-form-element__control insType"
+                                                variant="label-hidden" value={defaultRecordTypeId} onchange={handleRecordType}
+                                                placeholder="-- Select --"
+                                                options={recordTypeIds} required>
+                                            </lightning-combobox>
+                                        </template>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                                <lightning-layout multiple-rows="true" horizontal-align="center">
+                                    <lightning-layout-item size="3" padding="around-small">
+                                        Document Type
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="3" padding="around-small">
+                                        <template if:true={documentTypeValues.data}>
+                                            <lightning-combobox class="slds-form-element__control insType"
+                                                variant="label-hidden" value={docType} onchange={handleDocType}
+                                                placeholder="-- Select --"
+                                                options={documentTypeValues.data.values} required>
+                                            </lightning-combobox>
+                                        </template>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </div>
+                            <div class="slds-m-top_small  slds-grid slds-grid_align-center slds-align–absolute-center">
+                                <div class="slds-col slds-size_2-of-1">
+                                    <lightning-input class="slds-form-element__control" type="checkbox" label="Is this a photocopy ?" value={isphotocopy} onchange={handlerIsPhotocopy} name="Is this a photocopy?" checked={isphotocopy} disabled={disabledFileUpload}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="slds-clearfix">
+                                <div class="slds-form slds-grid slds-wrap slds-p-bottom_small ">
+                                    <div class=" slds-form-element slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1">
+                                        <template if:true={webApp}>
+                                                        <template if:true={documentRecordId}>
+                                                            <lightning-file-upload label="Upload File" variant="brand"
+                                                                class="slds-theme_brand slds-align_absolute-center "
+                                                                name="fileUploader" accept={acceptedFormats}
+                                                                record-id={documentRecordId}
+                                                                onchange={createDocument}  
+                                                                file-field-name="Guest_Record_fileupload__c"
+                                                                file-field-value={encryptedToken}
+                                                                onuploadfinished={handleFileUpload} multiple
+                                                                disabled={disabledFileUpload}></lightning-file-upload>
+                                                        </template>
+                                        </template>
+                                        <template if:true={mobileTabApp}>
+                                                        <lightning-button
+                                                            class="slds-theme_brand slds-align_absolute-center"
+                                                            icon-position="left" variant="brand" type="button"
+                                                            label="Capture" onclick={captureCustomerImageApp}>
+                                                        </lightning-button>
+                                                    </template>
+                                    </div>
+                                </div>
+                            </div>
+                            </br>
+
+                            <div class="slds-m-bottom_large slds-clearfix slds-align_absolute-center">
+                                <lightning-button variant="brand" label="Done" title="Primary action" onclick={uploadDone} class="slds-m-left_x-small"></lightning-button>
+
+                                <lightning-button variant="brand" label="Cancel" title="Primary action" onclick={uploadImageClose} class="slds-m-left_x-small">
+                                </lightning-button>
+                            </div>
+                        </lightning-tab>
+                        <lightning-tab if:true={coBorrowerVisible} label=Co-Borrower value="Co-borrower" onactive={handleActive}>
+                            <div class="slds-m-top_large slds-grid slds-grid_align-center slds-align–absolute-center">
+                                <div class="slds-col slds-size_1-of-8 slds-m-left">
+                                    Document Type
+                                </div>
+                                <div class="slds-col slds-size_1-of-10">
+                                    <template if:true={documentTypeValues.data}>
+                                                    <lightning-combobox class="slds-form-element__control insType"
+                                                        variant="label-hidden" value={docType} onchange={handleDocType}
+                                                        placeholder="-- Select --"
+                                                        options={documentTypeValues.data.values} required>
+                                                    </lightning-combobox>
+                                                </template>
+                                </div>
+                            </div>
+                            <div class="slds-m-top_large slds-grid slds-grid_align-center slds-align–absolute-center">
+                                <div class="slds-col slds-size_2-of-1">
+                                    <lightning-input class="slds-form-element__control" type="checkbox" label="Is this a photocopy ?" value={isphotocopy} onchange={handlerIsPhotocopy} name="Is this a photocopy?" checked={isphotocopy} disabled={disabledFileUpload}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="slds-clearfix">
+                                <div class="slds-form slds-grid slds-wrap slds-p-bottom_small ">
+                                    <div class=" slds-form-element slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1">
+                                        <template if:true={webApp}>
+                                                        <template if:true={documentRecordId}>
+                                                            <lightning-file-upload label="Upload File"
+                                                                class="slds-theme_brand slds-align_absolute-center "
+                                                                name="fileUploader" accept={acceptedFormats}
+                                                                record-id={documentRecordId}
+                                                                onload={createDocument} 
+                                                                onuploadfinished={handleFileUpload}
+                                                                disabled={disabledFileUpload} multiple>
+                                                            </lightning-file-upload>
+                                                        </template>
+                                        </template>
+                                        <template if:true={mobileTabApp}>
+                                                        <lightning-button
+                                                            class="slds-theme_brand slds-align_absolute-center"
+                                                            icon-position="left" variant="brand" type="button"
+                                                            label="Capture" onclick={captureCustomerImageApp}>
+                                                        </lightning-button>
+                                                    </template>
+                                    </div>
+                                </div>
+                            </div>
+                            </br>
+
+                            <div class="slds-m-bottom_large slds-clearfix slds-align_absolute-center">
+                                <lightning-button variant="brand" label="Done" title="Primary action" onclick={uploadDone} class="slds-m-left_x-small"></lightning-button>
+
+                                <lightning-button variant="brand" label="Cancel" title="Primary action" onclick={uploadImageClose} class="slds-m-left_x-small">
+                                </lightning-button>
+                            </div>
+                        </lightning-tab>
+                    </lightning-tabset>
+                </lightning-tab>
+                <lightning-tab label=View value="2">
+                    <lightning-tabset active-tab-value="1">
+                        <lightning-tab if:true={borrowerVisible} label=Borrower value="1">
+                            <div class="slds-box slds-box_xx-small">
+                                <c-l-W-C_-L-O-S_-Data-table-S-F data-id="documents" config={documentsConfig} query-filters={documentsConfig.queryFilters} onrowaction={handleRowAction} keycolumn="ContentDocumentId">
+                                </c-l-W-C_-L-O-S_-Data-table-S-F>
+                            </div>
+                        </lightning-tab>
+                        <lightning-tab if:true={coBorrowerVisible} label=Co-Borrower value="2">
+                            <div class="slds-box slds-box_xx-small">
+                                <c-l-W-C_-L-O-S_-Data-table-S-F data-id="documents" config={documentsConfig} query-filters={documentsConfig.queryFilters} onrowaction={handleRowAction} keycolumn="ContentDocumentId">
+                                </c-l-W-C_-L-O-S_-Data-table-S-F>
+                            </div>
+                        </lightning-tab>
+                    </lightning-tabset>
+                </lightning-tab>
+            </lightning-tabset>
+        </div>
+    </lightning-card>
+</div>
+</section>
+<div class="slds-backdrop slds-backdrop_open modalBackdrops" id="modalBackdrops1">
+</div>
+</template>
+</template>

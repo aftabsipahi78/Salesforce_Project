@@ -1,0 +1,38 @@
+<template >
+    <lightning-card>
+        <header  class="slds-p-left_x-large slds-p-bottom_none slds-text-heading_medium slds-m-bottom_x-small"><strong>Confirmation</strong></header>
+        <!-- <hr class="slds-m-around_medium slds-p-top_none"> -->
+        <!-- <hr class="slds-m-around_medium slds-p-top_none"> -->
+        <div class="slds-border_top slds-m-left_x-large slds-m-right_x-large"></div>
+            <div class="slds-box slds-m-around_x-large">
+                <ul>
+                    <li class="slds-p-left_xx-small">
+                        <lightning-input name="OriginalKYC" type="checkbox" checked="true" disabled="true"
+                            label="i. I have verified the Original KYC of all documents submitted by the Borrower and Co-Borrower."
+                            value={checkValue1}> </lightning-input>
+                    </li>
+                    <li class="slds-p-left_xx-small">
+                        <lightning-input name="Self-attestedKYC" type="checkbox" checked="true" disabled="true"
+                            label="ii. The copy of the self-attested KYC was collected from the customer as per the bank's KYC policy."
+                            value={checkValue2}> </lightning-input>
+                    </li>
+                    <li class="slds-p-left_xx-small">
+                        <lightning-input name="InPersion" type="checkbox" checked="true" disabled="true"
+                            label="iii. I have met the Applicant in person as part of the verification check for approval of loan."
+                            value={checkValue3}> </lightning-input>
+                    </li>
+        
+                    <li class="slds-p-left_xx-small">
+                         <lightning-input name="herebyConform" type="checkbox" checked="true" disabled="true"
+                            label="iv. I hereby record the above conformation on this date and approve this proposal for Loan distbursement."
+                            value={checkValue4}> </lightning-input>
+                    </li>
+                 </ul>
+                <br />
+                    <div class="slds-p-right_x-small">
+                        <lightning-button variant="brand" type="submit" label="Confirm" onclick={handleConform}
+                            ></lightning-button>
+                    </div> 
+                </div>
+    </lightning-card>
+</template>

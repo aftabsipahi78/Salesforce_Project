@@ -1,0 +1,729 @@
+<template>
+  <template if:true={showSpinner}>
+    <lightning-spinner variant="brand" size="small"
+      class="slds-box slds-size_12-of-12 slds-theme_default slds-text-color_error slds-align_absolute-center">
+    </lightning-spinner>
+  </template>
+  <template if:false={showSpinner}>
+    <lightning-layout if:false={loanAgreementId}
+      class="slds-box slds-size_12-of-12 slds-theme_default slds-text-color_error slds-align_absolute-center">
+      <b>Please check if Invoice is generated for this Application. Cannot
+        proceed further unless Invoice is generated. Please contact your System
+        Administrator.</b>
+    </lightning-layout>
+    <lightning-layout if:true={loanAgreementId} class="slds-box slds-size_12-of-12" multiple-rows="true">
+      <lightning-accordion label="Existing Loan Agreement Stamp" class="slds-size_1-of-1" allow-multiple-sections-open
+        active-section-name="1">
+        <lightning-record-edit-form object-api-name="Loan_Agreement__c" record-id={loanAgreementId}
+          onsuccess={handleSuccess} onerror={handleError}>
+          <lightning-accordion-section name="1">
+            <lightning-layout multiple-rows="true" class="slds-size_12-of-12 slds-var-m-top_small">
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Agreement_Booklet_Num__c" data-name="Agreement_Booklet_Num__c"
+                  variant="label-inline" data-section="1" data-accord="1">
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium"></lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Geographical_State__c" variant="label-inline" data-section="1"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="12" class="slds-align_absolute-center">
+                <lightning-button if:false={showFetchBookletSpinner} label="Fetch Agreement Booklet Details"
+                  variant="brand" data-section="1" data-accord="1" onclick={getLABookletDetails}
+                  disabled={disableGetBookletButton}>
+                </lightning-button>
+                <lightning-spinner if:true={showFetchBookletSpinner} variant="brand" size="small">
+                </lightning-spinner>
+              </lightning-layout-item>
+            </lightning-layout>
+            <!-- if:true={showApplDetails} -->
+            <lightning-layout multiple-rows="true" class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top">
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Agreement_Type__c" variant="label-inline" data-section="2"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="E_Agreement_Supported_In_State__c" variant="label-inline"
+                  data-section="2" data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Borrower_Has_Aadharcard__c" variant="label-inline" data-section="2"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Borrower_Aadhar_Linked_To_Mobile__c" variant="label-inline"
+                  data-section="2" data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Borrower_Aadhar_Mobile_In_Use__c" variant="label-inline"
+                  data-section="2" data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="CoBorrower_Has_Aadharcard__c" variant="label-inline" data-section="2"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="CoBorrower_Aadhar_Mobile_In_Use__c" variant="label-inline"
+                  data-section="2" data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <!-- <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Is_application_eligible_for_e_agreement__c"
+                                    variant="label-inline" data-section="2" data-accord="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item> -->
+              <lightning-layout-item size="12" class="slds-align_absolute-center">
+                <lightning-button label="Is application eligible for e-agreement ?" variant="brand" data-section="2"
+                  data-accord="1" if:true={isEAgreementType} onclick={handleChange}>
+                </lightning-button>
+              </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout multiple-rows="true"
+              class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top slds-is-relative">
+              <lightning-spinner if:true={showSaveSpinner} size="medium" variant="brand">
+              </lightning-spinner>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Invoice_Date__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled onchange={handleFieldChange}>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Tentative_Payment_Date__c" variant="label-inline" data-section="3"
+                  data-accord="1" onchange={handleFieldChange}>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Effective_Deal_Date__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Deal_Date_Based_On__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled={disableDealDateBasedOn} onchange={handleFieldChange}>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="AgreementDate__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Due_Date_Pattern__c" variant="label-inline" data-section="3"
+                  data-accord="1">
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Ist_EMI_Due_Date__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled={emiDisabled} onchange={handleFieldChange}>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Is_1st_EMI_due_date_correctly_captured__c" variant="label-inline"
+                  data-section="3" data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="X2nd_EMI_Due_Date__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled={emiDisabled}>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Finance_Amount__c" variant="label-inline" data-section="3"
+                  data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+
+              <lightning-layout-item size="12" class="slds-align_absolute-center">
+                <lightning-button label="Save" variant="brand" data-section="3" data-accord="1"
+                  onclick={showConfirmationBox}>
+                </lightning-button>
+              </lightning-layout-item>
+              <lightning-layout-item size="12" class="slds-align_absolute-center slds-m-top_small">
+                <lightning-button label="Fetch Statewise Stamping Requirement" variant="brand" data-section="3"
+                  data-accord="1" onclick={handleChange}>
+                </lightning-button>
+              </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout multiple-rows="true" class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top">
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Required_Loan_Agreement_Stamping_Charges__c" variant="label-inline"
+                  data-section="4" data-accord="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Total_Value_to_be_Stamped__c" variant="label-inline" data-section="4"
+                  data-accord="1">
+                </lightning-input-field>
+              </lightning-layout-item>
+              <!-- <lightning-layout-item size="12" if:false={isEAgreementType}
+                                class="slds-align_absolute-center">
+                                <lightning-button label="Fetch Existing Stamp Details" variant="brand" data-section="4"
+                                    data-accord="1" onclick={handleChange}>
+                                </lightning-button>
+                            </lightning-layout-item> -->
+            </lightning-layout>
+          </lightning-accordion-section>
+
+          <lightning-accordion-section if:true={showExistingLASD} label="Existing Loan Agreement Stamp Duty">
+            <lightning-layout multiple-rows="true" class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top">
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamp_S_No__c" variant="label-inline" data-accord="2"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamp_On__c" variant="label-inline" data-accord="2"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamp_Location_Type__c" variant="label-inline"
+                  data-accord="2" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamped_For__c" variant="label-inline" data-accord="2"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamped_Towards__c" variant="label-inline"
+                  data-accord="2" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamp_Type__c" variant="label-inline" data-accord="2"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Existing_LA_Stamp_Value__c" variant="label-inline" data-accord="2"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Is_Additional_Loan_Agreement_Stamp_Duty__c" variant="label-inline"
+                  data-accord="3" data-section="1" onchange={handleChange} disabled={isEAgreementType}>
+                </lightning-input-field>
+              </lightning-layout-item>
+            </lightning-layout>
+          </lightning-accordion-section>
+
+          <!-- <lightning-accordion-section if:true={showExistingPOASD} label="Existing POA Stamp Duty">
+                        <lightning-layout multiple-rows="true"
+                            class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top">
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamp_S_No__c" variant="label-inline"
+                                    data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamp_On__c" variant="label-inline"
+                                    data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamp_Location_Type__c"
+                                    variant="label-inline" data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamped_For__c" variant="label-inline"
+                                    data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamped_Towards__c"
+                                    variant="label-inline" data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamp_Type__c" variant="label-inline"
+                                    data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Existing_POA_Stamp_Value__c" variant="label-inline"
+                                    data-accord="3" data-section="1" disabled>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                                <lightning-input-field field-name="Is_Additional_Loan_Agreement_Stamp_Duty__c"
+                                    variant="label-inline" data-accord="3" data-section="1" onclick={handleChange} disabled={isEAgreementType}>
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-accordion-section> -->
+
+          <template if:false={isEAgreementType}>
+            <lightning-accordion-section if:true={showAddlSDLA} label="Additional Stamp Duty - Loan Agreement">
+              <lightning-layout multiple-rows="true">
+                <lightning-layout-item size="12">
+                  <div class="slds-card" style="font-family: 'Open Sans', sans-serif">
+                    <!-- Header -->
+                    <header class="slds-card__header slds-media slds-media_center">
+                      <div class="slds-media__body slds-card__header-title slds-text-title_bold"
+                        style="font-size: 14px"></div>
+                    </header>
+
+                    <!-- Table -->
+                    <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer" role="grid">
+                      <thead>
+                        <tr>
+                          <th scope="col" height="18">Stamp S No.</th>
+                          <th scope="col" height="18">Stamp On</th>
+                          <th scope="col" height="18">Stamp Location type</th>
+                          <th scope="col" height="18">Stamp For</th>
+                          <th scope="col" height="18">Stamp Type</th>
+                          <th scope="col" height="18">Stamp Value(Rs.)</th>
+                        </tr>
+                      </thead>
+                      <template if:true={stampingDetails}>
+                        <tbody>
+                          <template for:each={stampingDetails.additionalStampList} for:item="rec">
+                            <tr key={rec} class="slds-hint-parent">
+                              <td style="font-weight: bold">
+                                <lightning-formatted-number value={rec.Stamp_S_No__c}>
+                                </lightning-formatted-number>.
+                              </td>
+
+                              <td>
+                                <lightning-input type="date" variant="label-hidden" label="" data-id={rec.Stamp_S_No__c}
+                                  name="Stamp_Date__c" value={rec.Stamp_Date__c} onblur={handleInputChange}>
+                                </lightning-input>
+                              </td>
+
+                              <td>
+                                <lightning-combobox name="Stamp_Location_Type__c" variant="label-hidden"
+                                  data-id={rec.Stamp_S_No__c} options={stampLocationTypes}
+                                  value={rec.Stamp_Location_Type__c} onchange={handleInputChange}></lightning-combobox>
+                                <!-- <lightning-input type="text" variant="label-hidden" label=""  name="Stamp_location_type" value={rec.stamp_location_type} onblur={handleInputChange} disabled></lightning-input> -->
+                              </td>
+
+                              <td>
+                                <lightning-input type="text" variant="label-hidden" label="" data-id={rec.Stamp_S_No__c}
+                                  name="Stamp_For__c" value={rec.Stamp_For__c} onblur={handleInputChange}>
+                                </lightning-input>
+                              </td>
+
+                              <td>
+                                <lightning-input type="text" variant="label-hidden" label="" data-id={rec.Stamp_S_No__c}
+                                  name="Stamp_Type__c" value={rec.Stamp_Type__c} onblur={handleInputChange}>
+                                </lightning-input>
+                              </td>
+
+                              <td>
+                                <lightning-input type="number" formatter="currency" variant="label-hidden" label=""
+                                  data-id={rec.Stamp_S_No__c} name="Stamp_Value__c" value={rec.Stamp_Value__c}
+                                  onblur={handleInputChange}></lightning-input>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </template>
+                      <template if:false={stampingDetails}>
+                        <tbody>
+                          <template for:each={listOfStamps} for:item="rec">
+                            <tr key={rec} class="slds-hint-parent">
+                              <td style="font-weight: bold">
+                                <lightning-formatted-number value={rec.Stamp_S_No__c}>
+                                </lightning-formatted-number>.
+                              </td>
+
+                              <td>
+                                <lightning-input type="date" variant="label-hidden" label="" data-id={rec.Stamp_S_No__c}
+                                  name="Stamp_Date__c" value={rec.Stamp_Date__c} onblur={handleInputChange}>
+                                </lightning-input>
+                              </td>
+
+                              <td>
+                                <lightning-combobox name="Stamp_Location_Type__c" variant="label-hidden"
+                                  data-id={rec.Stamp_S_No__c} options={stampLocationTypes}
+                                  value={rec.Stamp_Location_Type__c} onchange={handleInputChange}></lightning-combobox>
+                                <!-- <lightning-input type="text" variant="label-hidden" label=""  name="Stamp_location_type" value={rec.stamp_location_type} onblur={handleInputChange} disabled></lightning-input> -->
+                              </td>
+
+                              <td>
+                                <lightning-input type="text" variant="label-hidden" label="" data-id={rec.Stamp_S_No__c}
+                                  name="Stamp_For__c" value={rec.Stamp_For__c} onblur={handleInputChange}>
+                                </lightning-input>
+                              </td>
+
+                              <td>
+                                <lightning-input type="text" variant="label-hidden" label="" data-id={rec.Stamp_S_No__c}
+                                  name="Stamp_Type__c" value={rec.Stamp_Type__c} onblur={handleInputChange}>
+                                </lightning-input>
+                              </td>
+
+                              <td>
+                                <lightning-input type="number" formatter="currency" variant="label-hidden" label=""
+                                  data-id={rec.Stamp_S_No__c} name="Stamp_Value__c" value={rec.Stamp_Value__c}
+                                  onblur={handleInputChange}></lightning-input>
+                              </td>
+                              <td>
+                                <lightning-button-icon icon-name="utility:delete" alternative-text="Remove"
+                                  title="Remove" name={rec.Stamp_S_No__c} onclick={removeRow}>
+                                </lightning-button-icon>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </template>
+                    </table>
+                    <div class="slds-p-left_small slds-p-vertical_small"></div>
+                    <!-- Footer -->
+                    <footer class="slds-modal__footer slds-p-horizontal_large slds-p-vertical_x-small">
+                      <lightning-button class="slds-p-right_small" variant="neutral" label="Delete All Stampings"
+                        title="Delete All Stampings" icon-name="utility:recycle_bin_full" onclick={removeAllRows}>
+                      </lightning-button>
+                      <lightning-button variant="brand" label="Add" title="Add" onclick={addNewRow}></lightning-button>
+                    </footer>
+                  </div>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" class="slds-align_absolute-center slds-p-top_medium">
+                  <lightning-button label="Next" variant="brand" onclick={submitAdditionalStamps}>
+                  </lightning-button>
+                </lightning-layout-item>
+              </lightning-layout>
+            </lightning-accordion-section>
+            <lightning-layout multiple-rows="true" class=" slds-var-m-top_medium slds-border_top">
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Total_Additional_LA_Stamping__c" variant="label-inline"
+                  data-accord="2" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Total_Loan_Agreement_Stamp_Value__c" variant="label-inline"
+                  data-accord="2" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Loan_Agreement_Stamping_Met__c" variant="label-inline"
+                  data-accord="2" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="ASD_POA_Physical_agreement_to_be_signed__c" variant="label-inline"
+                  data-accord="2" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+            </lightning-layout>
+            <!-- <lightning-layout multiple-rows="true " class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top ">
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_Stamp_On__c " variant="label-inline " data-accord="4 " data-section="1 ">
+        </lightning-input-field>
+    </lightning-layout-item>
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_Stamp_Location_Type__c " variant="label-inline " data-accord="4 " data-section="1 ">
+        </lightning-input-field>
+    </lightning-layout-item>
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_Stamp_Towards__c " variant="label-inline " data-accord="4 " data-section="1 ">
+        </lightning-input-field>
+    </lightning-layout-item>
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_Stamped_For__c " variant="label-inline " data-accord="4 " data-section="1 ">
+        </lightning-input-field>
+    </lightning-layout-item>
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_Stamp_Type__c " variant="label-inline " data-accord="4 " data-section="1 ">
+        </lightning-input-field>
+    </lightning-layout-item>
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_Stamp_Value_Rs__c " variant="label-inline " data-accord="4 " data-section="1 ">
+        </lightning-input-field>
+    </lightning-layout-item>
+    <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+        <lightning-input-field field-name="ASD_LA_any_additional_POA_stamp_duty__c " variant="label-inline " data-accord="4 " data-section="1 " onclick={handleChange}>
+        </lightning-input-field>
+    </lightning-layout-item>
+</lightning-layout> -->
+
+            <lightning-layout multiple-rows="true">
+              <lightning-layout-item size="4 " class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Stamping_Charges_Required_On_EAgreement__c " variant="label-inline "
+                  data-accord="7 " data-section="1 " readonly>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="12 " class="slds-align_absolute-center">
+                <lightning-button label={docLabel} variant="brand " data-section="1 " data-accord="7 "
+                  onclick={handleChange}>
+                </lightning-button>
+              </lightning-layout-item>
+              <lightning-layout-item size="4 " class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Is_Physical_Agreement_Eligible__c " variant="label-inline "
+                  data-accord="7 " data-section="1 " disabled={enable}>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4 " class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Remarks__c " variant="label-inline " data-accord="7 "
+                  data-section="1 " disabled={enable}>
+                </lightning-input-field>
+              </lightning-layout-item>
+            </lightning-layout>
+          </template>
+          <!-- <lightning-accordion-section if:true={showAddlSDPOA} label="Additional Stamp Duty - POA ">
+                            <lightning-layout multiple-rows="true "
+                                class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top ">
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Stamp_On__c " variant="label-inline "
+                                        data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Stamp_Location_Type__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Stamp_Towards__c " variant="label-inline "
+                                        data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Stamped_For__c " variant="label-inline "
+                                        data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Stamp_Type__c " variant="label-inline "
+                                        data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Stamp_Value_Rs__c " variant="label-inline "
+                                        data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Total_LA_stamping_done_on_the_ag__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Total_POA_stamping_done_on_th__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_LA_stamping_requirement_met__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Additional_LA_stamping_amount_re__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_stamping_requirement_met__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Additional_POA_stamping_amount_r__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+                                    <lightning-input-field field-name="ASD_POA_Physical_agreement_to_be_signed__c "
+                                        variant="label-inline " data-accord="5 " data-section="1 ">
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="12 "
+                                    class="slds-var-m-top_medium slds-align_absolute-center ">
+                                    <lightning-button label="Capture Additional Loan Agreement Stamp duty "
+                                        variant="brand " data-section="1 " data-accord="5 " onclick={handleChange}>
+                                    </lightning-button>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </lightning-accordion-section> -->
+
+          <!-- <lightning-accordion-section if:true={showAddlLASD} label="Additional Loan Agreement Stamp Duty ">
+    <lightning-layout multiple-rows="true " class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top ">
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_Loan_Agreement_Stamp_On__c " variant="label-inline " data-accord="6 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_Loan_Agreement_Stamp_Location_Type__c " variant="label-inline " data-accord="6 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_Loan_Agreement_Stamped_For__c " variant="label-inline " data-accord="6 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_Loan_Agreement_Stamped_Towards__c " variant="label-inline " data-accord="6 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_Loan_Agreement_Stamp_Type__c " variant="label-inline " data-accord="6 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_Loan_Agreement_Stamp_Value__c " variant="label-inline " data-accord="6 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="12 " class="slds-align_absolute-center ">
+            <lightning-button label="Next " variant="brand " data-section="1 " data-accord="6 " onclick={handleChange}>
+            </lightning-button>
+        </lightning-layout-item>
+        <lightning-layout-item size="12 " class="slds-var-m-top_medium slds-align_absolute-center ">
+            <lightning-button label="Capture Additional POA Stamp duty " variant="brand " data-section="1 " data-accord="6 " onclick={handleChange}>
+            </lightning-button>
+        </lightning-layout-item>
+    </lightning-layout>
+</lightning-accordion-section>
+
+
+<lightning-accordion-section if:true={showAddlPOASD} label="Additional POA Stamp Duty ">
+    <lightning-layout multiple-rows="true " class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top ">
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_POA_Stamp_On__c " variant="label-inline " data-accord="7 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_POA_Stamp_Location_Type__c " variant="label-inline " data-accord="7 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_POA_Stamped_For__c " variant="label-inline " data-accord="7 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_POA_Stamp_Towards__c " variant="label-inline " data-accord="7 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_POA_Stamp_Type__c " variant="label-inline " data-accord="7 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="4 " class="slds-var-p-around_medium ">
+            <lightning-input-field field-name="Addl_POA_Stamp_Value__c " variant="label-inline " data-accord="7 " data-section="1 ">
+            </lightning-input-field>
+        </lightning-layout-item>
+        <lightning-layout-item size="12 " class="slds-align_absolute-center ">
+            <lightning-button label="Next " variant="brand " data-section="1 " data-accord="7 " onclick={handleChange}>
+            </lightning-button>
+        </lightning-layout-item> -->
+
+          <lightning-accordion-section if:true={isEAgreementType} label="E-Sign Agreement">
+
+            <lightning-layout multiple-rows="true" class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top">
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Add_POA_SD_Initiation_method__c" variant="label-inline"
+                  data-accord="8" data-section="1" disabled={disableinitiateMethod}
+                  onchange={handleInitiateMethodChange}>
+                </lightning-input-field>
+              </lightning-layout-item>
+
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                &nbsp;
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                &nbsp;
+              </lightning-layout-item>
+
+              <lightning-layout-item size="6" class="slds-var-p-around_medium">
+                <lightning-button class="slds-m-right_x-small" label="Initiate Agreement" variant="brand"
+                  data-section="1" data-accord="8" disabled={disableInitiateAgreement}
+                  onclick={handleInitiateAgreementClick}>
+                </lightning-button>
+                <lightning-button class="slds-m-right_x-small" label="Initiate Co-Borrower Agreement" variant="brand"
+                  data-section="1" data-accord="8" disabled={disableInitiateCoBorrowerAgreement}
+                  onclick={handleInitiateCoBorrowerAgreementClick}>
+                </lightning-button>
+                <lightning-button class="slds-m-right_x-small" label="Check Status" variant="brand" data-section="1"
+                  data-accord="8" disabled={disableCheckstatus} onclick={handleCheckStatusClick}>
+                </lightning-button>
+              </lightning-layout-item>
+
+              <lightning-layout-item size="6" class="slds-var-p-around_medium">
+                &nbsp;
+              </lightning-layout-item>
+
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field data-id="signed-fields" data-name="Add_POA_SD_Agreement_signed_for_borrower__c"
+                  field-name="Add_POA_SD_Agreement_signed_for_borrower__c" variant="label-inline" data-accord="8"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field data-id="signed-fields" data-name="Add_POA_SD_Agreement_signed_for_co_borro__c"
+                  field-name="Add_POA_SD_Agreement_signed_for_co_borro__c" variant="label-inline" data-accord="8"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Add_POA_SD_Loan_agreement_accepted_by_CV__c" variant="label-inline"
+                  data-accord="8" data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+              <lightning-layout-item size="4" class="slds-var-p-around_medium">
+                <lightning-input-field field-name="Add_POA_SD_Remarks__c" variant="label-inline" data-accord="8"
+                  data-section="1" disabled>
+                </lightning-input-field>
+              </lightning-layout-item>
+            </lightning-layout>
+
+            <template if:true={isSpinnerVisible}>
+              <div>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+              </div>
+            </template>
+
+          </lightning-accordion-section>
+
+          <lightning-layout multiple-rows="true" class="slds-size_12-of-12 slds-var-m-top_medium slds-border_top">
+            <lightning-layout-item size="4" class="slds-var-p-around_medium">
+              <lightning-button label="Submit " variant="brand " data-section="1 " data-accord="8 "
+                disabled={disableSubmit} onclick={handleSubmitClick}>
+              </lightning-button>
+            </lightning-layout-item>
+          </lightning-layout>
+        </lightning-record-edit-form>
+      </lightning-accordion>
+    </lightning-layout>
+  </template>
+
+  <template if:true={uploadScannedBookletFlag}>
+    <c-l-W-C_-L-O-S_-Generic-Upload-Document-M5 onchangeflagvalue={changeUploadBooklet} currentloanapplicationid={oppId}
+      currentapplicantid={borrowerId} uploadviewdocpopup={uploadScannedBookletFlag} createdoconparentbutton="true"
+      title="Upload Scanned Booklet" doctype={docType} isphotocopy={showPhotoCopy} showdocview={showDocView}
+      showupload={showUpload} vehicledocs={isVehicleDoc} alldocs={isAllDocType}
+      documentrecordidfromparent={documentRecordId}>
+    </c-l-W-C_-L-O-S_-Generic-Upload-Document-M5>
+  </template>
+  <template if:true={readonly}>
+    <c-l-W-C_-L-O-S_-Generic-Upload-Document-M5 onchangeflagvalue={changeUploadBooklet} currentloanapplicationid={oppId}
+      currentapplicantid={borrowerId} uploadviewdocpopup={uploadScannedBookletFlag} createdoconparentbutton="false"
+      title="View Scanned Booklet" doctype={docType} isphotocopy={showPhotoCopy} showdocview={showDocView}
+      showupload={showUpload} vehicledocs={isVehicleDoc} alldocs={isAllDocType} isviewinvoice="false"
+      documentrecordidfromparent={documentRecordId} onfileuploadstatus={docUploadSuccessfully}
+      additionaldocument="true"></c-l-W-C_-L-O-S_-Generic-Upload-Document-M5>
+  </template>
+
+  <template if:true={showModal}>
+    <c-ind_lwc_modal header="Confirmation " onhide={hideModal} onok={handleSave}
+      message="1st EMI due date cannot be changed once submitted. Please press Okay to continue or Cancel to check and recapture the same ">
+    </c-ind_lwc_modal>
+  </template>
+
+  <template if:true={showConfirmModal}>
+    <c-ind_lwc_modal header="Confirmation" onhide={hideConfirmModal} onok={handleConfirmSave}
+      message={confirmModalMessage}>
+    </c-ind_lwc_modal>
+  </template>
+</template>
